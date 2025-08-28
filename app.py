@@ -1,30 +1,32 @@
-from flask import Flask, render_template, request
-import google.generativeai as genai
+# app.py
+import gradio as gr
+from google.generativeai import genai
 import os
 
-app = Flask(__name__)
+# Set your API key
+genai.configure(api_key=os.getenv("AIzaSyCqpDOzqCE_y56WQTCvR5gU7tHQe40pUvk"))
 
-# Gemini API key set karo (apna key lagao)
-genai.configure(api_key="AIzaSyCAwAeADpWhmK35XMuv9Qxshoua2zP1ZDM")
+# Initialize Gemini model
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-chat_history = []
+# Chat function
+def chat_with_gemini(user_msg):
+    if not user_msg:
+        return "Please type a message."
+    try:
+        response = model.generate_content(user_msg)
+        return response.content[0].text
+    except Exception as e:
+        return f"Error: {str(e)}"
 
-@app.route("/")
-def index():
-    return render_template("index.html", chat=chat_history)
+# Gradio Interface
+iface = gr.Interface(
+    fn=chat_with_gemini,
+    inputs=gr.Textbox(lines=2, placeholder="Type your message here..."),
+    outputs="text",
+    title="Gemini AI Chatbot",
+    description="Chat with Gemini AI using HuggingFace Spaces"
+)
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    user_msg = request.form["message"]
-    chat_history.append({"role": "user", "content": user_msg})
-
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    response = model.generate_content(user_msg)
-
-    bot_reply = response.text
-    chat_history.append({"role": "bot", "content": bot_reply})
-
-    return render_template("index.html", chat=chat_history)
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# Launch the app
+iface.launch()
