@@ -1,2 +1,18 @@
 flask
 google-generativeai
+
+
+
+
+
+
+
+
+
+https://github.com/humeshkumarsahu1006/gemini-chatbot.git
+
+
+
+git branch -M main
+git remote add origin https://github.com/humeshkumarsahu1006/gemini-chatbot.git
+
